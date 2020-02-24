@@ -38,7 +38,7 @@ text
 EOF
 
 # Create us a bucket, but only if it doesn't exist. TODO: check for 403's here too!
-sh -c aws s3api head-bucket --bucket ${AWS_S3_BUCKET} || aws s3api create-bucket --bucket ${AWS_S3_BUCKET}
+sh -c "aws s3api head-bucket --bucket ${AWS_S3_BUCKET} --profile s3-sync-action || aws s3api create-bucket --bucket ${AWS_S3_BUCKET} --profile s3-sync-action"
 
 # Sync using our dedicated profile and suppress verbose messages.
 # All other flags are optional via the `args:` directive.
