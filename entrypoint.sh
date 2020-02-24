@@ -41,6 +41,12 @@ EOF
 echo ${AWS_S3_BUCKET}
 aws s3api head-bucket --bucket ${AWS_S3_BUCKET} --profile s3-sync-action || aws s3api create-bucket --bucket ${AWS_S3_BUCKET} --create-bucket-configuration LocationConstraint=${AWS_REGION} --profile s3-sync-action
 
+echo "{\"ErrorDocument\": {\"Key\": \"index.html\"},\"IndexDocument\": {\"Suffix\": \"index.html\"}}" > site.json
+aws s3api put-bucket-website --bucket ${AWS_S3_BUCKET} --website-configuration="`cat site.json`" --profile s3-sync-action
+
+echo "{\"Version\": \"2012-10-17\",\"Id\": \"Policy1469296049159\",\"Statement\": [{\"Sid\": \"PublicReadForGetBucketObjects\",\"Effect\": \"Allow\",\"Principal\": \"*\",\"Action\": \"s3:GetObject\",\"Resource\": \"arn:aws:s3:::${AWS_S3_BUCKET}/*\"}]}" > policy.json
+aws s3api put-bucket-policy --bucket ${AWS_S3_BUCKET} --policy "`cat policy.json`"  --profile s3-sync-action
+
 # Sync using our dedicated profile and suppress verbose messages.
 # All other flags are optional via the `args:` directive.
 sh -c "aws s3 sync ${SOURCE_DIR:-.} s3://${AWS_S3_BUCKET}/${DEST_DIR} \
